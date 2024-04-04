@@ -38,7 +38,7 @@ func main() {
 		b.Start(ctx)
 
 		// Installed so that you do not need to install it anymore
-		app.POST("/api/KiraraServerStatus.action", func(c *gin.Context) {
+		app.POST("/kirara/app/KiraraServerStatus.action", func(c *gin.Context) {
 			routes.HandleServerStatus(c, false)
 		})
 
@@ -50,9 +50,11 @@ func main() {
 	} else {
 		// You have not configured this application so you can not use its features
 		// Some installation option routes are listed below
-		app.POST("/api/KiraraServerStatus.action", func(c *gin.Context) {
+		app.POST("/kirara/app/KiraraServerStatus.action", func(c *gin.Context) {
 			routes.HandleServerStatus(c, true)
 		})
+		app.POST("/kirara/app/KiraraInstallation.action", routes.HandleServerInstallation)
 	}
+	app.NoRoute(routes.HandleNoRoute)
 	app.Run(":8080")
 }
