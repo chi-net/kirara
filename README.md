@@ -1,6 +1,8 @@
+<img src="./logo.png" style="display: block; margin: auto; width:192px"/>
+
 # Kirara - A magic tool enables you to communicate with your friends in Telegram everywhere and anytime
 
-## This project is under construction.
+## This project is under construction currently.
 
 ## What's kirara?
 
@@ -16,4 +18,6 @@ You can see the online document in <https://kirara.chinet.work/>.
 
 We used GPL-3 license to authorize this application.
 
-Made with love and passion by chi Network Contributors(c)2022-2024.
+This application's icon was an AI-generated content, provided by [@baiyuanneko](https://i.nekomoe.xyz/)
+
+Made with love and passion by [chi Network Contributors](https://chinet.work/)(c)2022-2024.
