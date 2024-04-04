@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.vuejs.org/config/app-configs
 export default defineConfig({    // 站点级选项
-  title: 'Kirara - 一个让你和电报好友保持持续联系的神奇工具',
+  title: 'Kirara',
   description: 'kirara是一个让你和电报好友保持持续联系的申必魔法工具，它轻盈，方便，好部署，是你在校没手机在机房摸鱼上杜叔叔的最佳伴侣',
   head: [
     ['meta', { name: 'description', content: 'Kirara是一个让你和电报好友保持持续联系的神奇工具，它轻盈，方便，好部署，是你在校没手机在机房摸鱼上杜叔叔的最佳伴侣' }],
