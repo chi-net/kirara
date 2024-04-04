@@ -2,9 +2,18 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.vuejs.org/config/app-configs
 export default defineConfig({    // 站点级选项
-  title: 'Kirara',
-  description: '一个让你和电报好友保持持续联系的申必魔法工具',
-
+  title: 'Kirara - 一个让你和电报好友保持持续联系的神奇工具',
+  description: 'kirara是一个让你和电报好友保持持续联系的申必魔法工具，它轻盈，方便，好部署，是你在校没手机在机房摸鱼上杜叔叔的最佳伴侣',
+  head: [
+    ['meta', { name: 'description', content: 'Kirara是一个让你和电报好友保持持续联系的神奇工具，它轻盈，方便，好部署，是你在校没手机在机房摸鱼上杜叔叔的最佳伴侣' }],
+    ['meta', { name: 'og:description', content: 'Kirara是一个让你和电报好友保持持续联系的神奇工具，它轻盈，方便，好部署，是你在校没手机在机房摸鱼上杜叔叔的最佳伴侣' }],
+    ['meta', { name: 'twitter:description', content: 'Kirara是一个让你和电报好友保持持续联系的神奇工具，它轻盈，方便，好部署，是你在校没手机在机房摸鱼上杜叔叔的最佳伴侣' }],
+    ['meta', { name: 'og:site_name', content: 'Kirara' }],
+    ['meta', { name: 'twitter:img:src', content: 'https://kirara.chinet.work/logo.png' }],
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+    ['meta', { name: 'og:url', content: 'https://kirara.chinet.work/' }],
+    ['meta', { name: 'og:locale', content: 'zh_CN' }]
+  ],
   themeConfig: {
     footer: {
       message: 'Kirara was released under GPL3 License.',
