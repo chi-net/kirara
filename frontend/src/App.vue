@@ -1,85 +1,38 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+<script setup>
+
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+	<RouterView/>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<style>
+body {
+	font-family: "MiSans", "SF Pro", "OPPOSans", "Roboto", "Arial", serif;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+/* Code Generated from ChatGPT-3.5*/
+/* Width and height of the scrollbar track */
+::-webkit-scrollbar {
+	width: 10px; /* You can adjust this value */
+	height: 10px; /* You can adjust this value */
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+/* Handle of the scrollbar */
+::-webkit-scrollbar-thumb {
+	background: rgba(0, 0, 0, 0.3); /* Transparent black handle */
+	border-radius: 5px; /* Rounded corners */
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+/* Track of the scrollbar */
+::-webkit-scrollbar-track {
+	background: transparent; /* Transparent background for the track */
+	border-radius: 5px; /* Rounded corners */
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(0, 0, 0, 0.5); /* Transparent black handle on hover */
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
 </style>

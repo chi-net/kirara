@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: MiSans;
+  src: local("MiSans"), url("./MiSans/MiSans-Regular.woff2") format("woff2"), url("./MiSans/MiSans-Regular.ttf") format("ttf");
+  font-weight: normal;
+}
+@font-face {
+  font-family: MiSans;
+  src: local("MiSans Bold"), url("./MiSans/MiSans-Bold.woff2") format("woff2"), url("./MiSans/MiSans-Bold.ttf") format("ttf");
+  font-weight: bold;
+}
+@font-face {
+  font-family: MiSans;
+  src: local("MiSans Light"), url("./MiSans/MiSans-Light.woff2") format("woff2"), url("./MiSans/MiSans-Light.ttf") format("ttf");
+  font-weight: 300;
+}
