@@ -34,7 +34,7 @@ func init() {
 		if conf.DbPath != "Failed to GET" {
 			IsApplicationActivated = true
 		} else {
-			dbPath := conf.DbPath
+			dbPath = conf.DbPath
 		}
 
 		if conf.ListenPort != -1 {
@@ -78,16 +78,16 @@ func main() {
 	app.Use(gin.Logger())
 
 	// Installed so that you do not need to install it anymore
-	app.POST("/kirara/app/KiraraServerStatus.action", func(c *gin.Context) {
-		routes.HandleServerStatus(c, false)
-	})
-
-	app.GET("/", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"code": 200,
+	if IsApplicationActivated {
+		app.GET("/", func(ctx *gin.Context) {
+			ctx.JSON(200, gin.H{
+				"code": 200,
+			})
 		})
-	})
-	if !IsApplicationActivated {
+		app.POST("/kirara/app/KiraraServerStatus.action", func(c *gin.Context) {
+			routes.HandleServerStatus(c, false)
+		})
+	} else {
 		// You have not configured this application so you can not use its features
 		// Some installation option routes are listed below
 		app.POST("/kirara/app/KiraraServerStatus.action", func(c *gin.Context) {
@@ -96,5 +96,8 @@ func main() {
 		app.POST("/kirara/app/KiraraInstallation.action", routes.HandleServerInstallation)
 	}
 	app.NoRoute(routes.HandleNoRoute)
-	app.Run(":" + strconv.Itoa(ApplicationListenPort))
+	err := app.Run(":" + strconv.Itoa(ApplicationListenPort))
+	if err != nil {
+		panic(err)
+	}
 }
