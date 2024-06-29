@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"github.com/chi-net/kirara/core/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -38,11 +39,12 @@ type ServerInstallationForm struct {
 
 func HandleServerInstallation(c *gin.Context, token string) {
 	form := ServerInstallationForm{}
-	if c.ShouldBind(&form) == nil {
+	if c.ShouldBind(&form) != nil {
 		c.JSON(400, gin.H{
 			"code":   400,
 			"status": "failed",
 		})
+		return
 	}
 
 	if token != form.AuthenticationToken {
@@ -50,6 +52,7 @@ func HandleServerInstallation(c *gin.Context, token string) {
 			"code":   400,
 			"status": "invalid token",
 		})
+		return
 	}
 
 	if form.Password != form.PasswordRepeat && form.Password != "" {
@@ -57,16 +60,19 @@ func HandleServerInstallation(c *gin.Context, token string) {
 			"code":   400,
 			"status": "invalid password",
 		})
+		return
 	}
 
 	// start installation process
 	err := utils.InitializeApplication(form.Username, form.Password, form.ListenPort, form.DatabaseType, form.TgBotToken)
 
 	if err != nil {
+		fmt.Println(err.Error())
 		c.JSON(400, gin.H{
 			"code":   400,
 			"status": "failed to initialize application",
 		})
+		return
 	}
 
 	c.JSON(200, gin.H{

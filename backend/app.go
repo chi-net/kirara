@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/chi-net/kirara/config"
 	"github.com/chi-net/kirara/core/db/sqlite"
 	"github.com/chi-net/kirara/core/handler/tgbot"
 	"github.com/chi-net/kirara/core/routes"
@@ -19,15 +18,12 @@ import (
 // Licensed under GPL3, Made with love and passion by chi Network Contributors(c)2022-2024.
 // The icon of this application is an AIGC content and it was provided by baiyuanneko.
 
-var IsApplicationActivated bool = false
-var ApplicationListenPort int = 8080
-
-func initializeKiraraTgBotService(ctx context.Context, cancel context.CancelFunc) {
+func initializeKiraraTgBotService(ctx context.Context, cancel context.CancelFunc, token string) {
 	opts := []bot.Option{
 		bot.WithDefaultHandler(tgbot.KiraraTelegramBotHandler),
 	}
 
-	KiraraTelegramBotInstance, err := bot.New(config.KiraraTelegramBotToken, opts...)
+	KiraraTelegramBotInstance, err := bot.New(token, opts...)
 	if err != nil {
 		panic(err)
 	}
@@ -48,10 +44,12 @@ func main() {
 	dbPath := ""
 	dir, _ := os.Getwd()
 
+	ApplicationListenPort := 8080
+	IsApplicationActivated := utils.CheckKiraraActivationInfo()
+
 	if utils.CheckConfiguration(dir + string(os.PathSeparator) + "kirara.config.json") {
 
 		conf := utils.ReadJSONConfiguration(dir + string(os.PathSeparator) + "kirara.config.json")
-		IsApplicationActivated := utils.CheckKiraraActivationInfo()
 		if conf.ListenPort != -1 {
 			ApplicationListenPort = conf.ListenPort
 		}
@@ -66,18 +64,32 @@ func main() {
 				panic(err)
 			}
 
-			_, err = sqlite.Exec("SELECT * FROM USERS")
+			_, err = sqlite.Exec("SELECT * FROM users")
 			if err != nil {
 				panic(err)
 			}
 
+			// Get Telegram Bot Token
+			results, err := sqlite.Query("SELECT value FROM settings WHERE `key`='kirara.bot.token'")
+			if err != nil {
+				panic(err)
+			}
+			var bottoken string
+			if results.Next() {
+				err = results.Scan(&bottoken)
+				if err != nil {
+					panic(err)
+				}
+				if bottoken == "" {
+					panic("Can not get Telegram bot token!")
+				}
+
+				// initialize Telegram Bot Instance
+				ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+				go initializeKiraraTgBotService(ctx, cancel, bottoken)
+			}
 		}
 	}
-
-	// initialize Telegram Bot Instance
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-
-	go initializeKiraraTgBotService(ctx, cancel)
 
 	// Installed so that you do not need to install it anymore
 	if IsApplicationActivated {
