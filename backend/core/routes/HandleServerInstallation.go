@@ -1,6 +1,9 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/chi-net/kirara/core/utils"
+	"github.com/gin-gonic/gin"
+)
 
 /*
 HandleServerInstallation
@@ -26,20 +29,48 @@ type ServerInstallationForm struct {
 	Username            string `json:"username"`
 	Password            string `json:"password"`
 	PasswordRepeat      string `json:"passwordRepeat"`
-	ListenPort          string `json:"listenPort"`
+	ListenPort          int    `json:"listenPort"`
 	DatabaseType        string `json:"databaseType"`
 	AuthenticationToken string `json:"authenticationToken"`
+	TgBotToken          string `json:"tgBotToken"`
 	Type                string `json:"type"`
 }
 
-func HandleServerInstallation(c *gin.Context) {
+func HandleServerInstallation(c *gin.Context, token string) {
 	form := ServerInstallationForm{}
 	if c.ShouldBind(&form) == nil {
-		c.Status(400)
 		c.JSON(400, gin.H{
 			"code":   400,
 			"status": "failed",
 		})
 	}
 
+	if token != form.AuthenticationToken {
+		c.JSON(400, gin.H{
+			"code":   400,
+			"status": "invalid token",
+		})
+	}
+
+	if form.Password != form.PasswordRepeat && form.Password != "" {
+		c.JSON(400, gin.H{
+			"code":   400,
+			"status": "invalid password",
+		})
+	}
+
+	// start installation process
+	err := utils.InitializeApplication(form.Username, form.Password, form.ListenPort, form.DatabaseType, form.TgBotToken)
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"code":   400,
+			"status": "failed to initialize application",
+		})
+	}
+
+	c.JSON(200, gin.H{
+		"code":   200,
+		"status": "success",
+	})
 }

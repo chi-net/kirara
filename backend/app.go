@@ -4,11 +4,12 @@ import (
 	"context"
 	"github.com/chi-net/kirara/config"
 	"github.com/chi-net/kirara/core/db/sqlite"
-	"github.com/chi-net/kirara/core/handler"
+	"github.com/chi-net/kirara/core/handler/tgbot"
 	"github.com/chi-net/kirara/core/routes"
 	"github.com/chi-net/kirara/core/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-telegram/bot"
+	"log"
 	"os"
 	"os/signal"
 	"strconv"
@@ -20,23 +21,37 @@ import (
 
 var IsApplicationActivated bool = false
 var ApplicationListenPort int = 8080
-var KiraraTelegramBotInstance bot.Bot
-var KiraraDatabaseInstance sqlite.SQLiteDBInstance
 
-func init() {
+func initializeKiraraTgBotService(ctx context.Context, cancel context.CancelFunc) {
+	opts := []bot.Option{
+		bot.WithDefaultHandler(tgbot.KiraraTelegramBotHandler),
+	}
+
+	KiraraTelegramBotInstance, err := bot.New(config.KiraraTelegramBotToken, opts...)
+	if err != nil {
+		panic(err)
+	}
+
+	KiraraTelegramBotInstance.Start(ctx)
+
+	<-ctx.Done()
+	log.Println("[Kirara TgBotService] shutting down")
+	cancel()
+	// workaround
+	os.Exit(1)
+}
+
+func main() {
+	app := gin.New()
+	app.Use(gin.Logger())
+
 	dbPath := ""
 	dir, _ := os.Getwd()
 
 	if utils.CheckConfiguration(dir + string(os.PathSeparator) + "kirara.config.json") {
 
 		conf := utils.ReadJSONConfiguration(dir + string(os.PathSeparator) + "kirara.config.json")
-
-		if conf.DbPath != "Failed to GET" {
-			IsApplicationActivated = true
-		} else {
-			dbPath = conf.DbPath
-		}
-
+		IsApplicationActivated := utils.CheckKiraraActivationInfo()
 		if conf.ListenPort != -1 {
 			ApplicationListenPort = conf.ListenPort
 		}
@@ -44,38 +59,25 @@ func init() {
 		// we use SQLite to store some settings data including your credentials of MySQL, encrypted password, username API Key etc.
 		// before the application run, we should get some configurations from SQLite.
 		if IsApplicationActivated {
-			KiraraDatabaseInstance, err := sqlite.New(dbPath)
+			dbPath = conf.DbPath
+
+			err := sqlite.New(dbPath)
 			if err != nil {
 				panic(err)
 			}
 
-			_, err = KiraraDatabaseInstance.Exec("SELECT * FROM USERS")
+			_, err = sqlite.Exec("SELECT * FROM USERS")
 			if err != nil {
 				panic(err)
 			}
 
 		}
-
-		// initialize Telegram Bot Instance
-		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-		defer cancel()
-
-		opts := []bot.Option{
-			bot.WithDefaultHandler(handler.KiraraTelegramBotHandler),
-		}
-
-		KiraraTelegramBotInstance, err := bot.New(config.KiraraTelegramBotToken, opts...)
-		if err != nil {
-			panic(err)
-		}
-
-		KiraraTelegramBotInstance.Start(ctx)
 	}
-}
 
-func main() {
-	app := gin.New()
-	app.Use(gin.Logger())
+	// initialize Telegram Bot Instance
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+
+	go initializeKiraraTgBotService(ctx, cancel)
 
 	// Installed so that you do not need to install it anymore
 	if IsApplicationActivated {
@@ -84,20 +86,31 @@ func main() {
 				"code": 200,
 			})
 		})
-		app.POST("/kirara/app/KiraraServerStatus.action", func(c *gin.Context) {
+		app.POST("/kirara/app/status", func(c *gin.Context) {
 			routes.HandleServerStatus(c, false)
 		})
 	} else {
 		// You have not configured this application so you can not use its features
 		// Some installation option routes are listed below
-		app.POST("/kirara/app/KiraraServerStatus.action", func(c *gin.Context) {
+		app.POST("/kirara/app/status", func(c *gin.Context) {
 			routes.HandleServerStatus(c, true)
 		})
-		app.POST("/kirara/app/KiraraInstallation.action", routes.HandleServerInstallation)
+
+		token := utils.GenerateRandomString(32)
+		app.POST("/kirara/app/install", func(c *gin.Context) {
+			routes.HandleServerInstallation(c, token)
+		})
+
+		log.Println("[Kirara Installation] Your token is:", token)
+		log.Println("Please DO NOT TELL OTHER YOUR TOKEN!")
+		log.Println("If you think the token was stolen, please restart this application.")
 	}
+
 	app.NoRoute(routes.HandleNoRoute)
 	err := app.Run(":" + strconv.Itoa(ApplicationListenPort))
 	if err != nil {
-		panic(err)
+		log.Println("[Kirara Webserver]\nPopup: If it seems that the application is binded a port that has already been used, Please create a `kirara.config.json` and fill it with\n{\n  \"ListenPort\": [An integer Port You want to use],\n  \"DBPath\": \"Failed to GET\"\n}\nWe will overwrite this file when it becomes installing.")
+		panic(err.Error())
 	}
+
 }
