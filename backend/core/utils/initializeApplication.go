@@ -48,9 +48,9 @@ func InitializeApplication(username string, password string, listenPort int, dbt
 		WriteKiraraConfig(dbpath, listenPort)
 
 		// add username and password into settings
-		addUserSQL := "INSERT INTO settings (key, value) VALUES ('kirara.admin.username', '" + username + "');"
+		addUserSQL := "INSERT INTO settings (key, value) VALUES ('kirara.admin.username', ?);"
 		fmt.Println(addUserSQL)
-		result, err := sqlite.Exec(addUserSQL)
+		result, err := sqlite.Exec(addUserSQL, username)
 		if err != nil {
 			return err
 		}
@@ -60,8 +60,8 @@ func InitializeApplication(username string, password string, listenPort int, dbt
 		}
 
 		cryptedPassword, _ := saltPassword([]byte(password), bcrypt.DefaultCost)
-		addPasswordSQL := "INSERT INTO settings (key, value) VALUES ('kirara.admin.password', '" + string(cryptedPassword) + "');"
-		result, err = sqlite.Exec(addPasswordSQL)
+		addPasswordSQL := "INSERT INTO settings (key, value) VALUES ('kirara.admin.password', ?);"
+		result, err = sqlite.Exec(addPasswordSQL, string(cryptedPassword))
 		if err != nil {
 			return err
 		}
@@ -71,8 +71,8 @@ func InitializeApplication(username string, password string, listenPort int, dbt
 		}
 
 		// insert telegram bot token
-		addBotTokenSQL := "INSERT INTO settings (key, value) VALUES ('kirara.bot.token', '" + bottoken + "');"
-		result, err = sqlite.Exec(addBotTokenSQL)
+		addBotTokenSQL := "INSERT INTO settings (key, value) VALUES ('kirara.bot.token', ?)"
+		result, err = sqlite.Exec(addBotTokenSQL, bottoken)
 		if err != nil {
 			return err
 		}
