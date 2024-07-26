@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"github.com/chi-net/kirara/core/class/botapp"
 	"github.com/chi-net/kirara/core/db/sqlite"
-	"github.com/chi-net/kirara/core/handler/tgbot"
 	"github.com/chi-net/kirara/core/routes"
 	"github.com/chi-net/kirara/core/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/go-telegram/bot"
 	"log"
 	"os"
 	"os/signal"
@@ -15,27 +15,8 @@ import (
 )
 
 // Kirara - A magic tool enables you to communicate with your friends in Telegram everywhere and anytime.
-// Licensed under GPL3, Made with love and passion by chi Network Contributors(c)2022-2024.
+// Licensed under GPL3, Made by chi Network Contributors(c)2022-2024.
 // The icon of this application is an AIGC content and it was provided by baiyuanneko.
-
-func initializeKiraraTgBotService(ctx context.Context, cancel context.CancelFunc, token string) {
-	opts := []bot.Option{
-		bot.WithDefaultHandler(tgbot.KiraraTelegramBotHandler),
-	}
-
-	KiraraTelegramBotInstance, err := bot.New(token, opts...)
-	if err != nil {
-		panic(err)
-	}
-
-	KiraraTelegramBotInstance.Start(ctx)
-
-	<-ctx.Done()
-	log.Println("[Kirara TgBotService] shutting down")
-	cancel()
-	// workaround
-	os.Exit(1)
-}
 
 func main() {
 	app := gin.New()
@@ -81,12 +62,15 @@ func main() {
 					panic(err)
 				}
 				if bottoken == "" {
-					panic("Can not get Telegram bot token!")
+					panic("Can not get Telegram bot tokens!")
 				}
 
+				fmt.Println("[kirara] initalize bot")
 				// initialize Telegram Bot Instance
 				ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-				go initializeKiraraTgBotService(ctx, cancel, bottoken)
+				go botapp.InitializeKiraraTgBotService(ctx, cancel, bottoken)
+			} else {
+				panic("Can not get Telegram bot tokens!")
 			}
 		}
 	}
@@ -101,6 +85,8 @@ func main() {
 		app.POST("/kirara/app/status", func(c *gin.Context) {
 			routes.HandleServerStatus(c, false)
 		})
+
+		app.POST("/kirara/app/login", routes.HandleUserLogin)
 	} else {
 		// You have not configured this application so you can not use its features
 		// Some installation option routes are listed below
@@ -113,9 +99,9 @@ func main() {
 			routes.HandleServerInstallation(c, token)
 		})
 
-		log.Println("[Kirara Installation] Your token is:", token)
+		log.Println("[Kirara Installation] Your tokens is:", token)
 		log.Println("Please DO NOT TELL OTHER YOUR TOKEN!")
-		log.Println("If you think the token was stolen, please restart this application.")
+		log.Println("If you think the tokens was stolen, please restart this application.")
 	}
 
 	app.NoRoute(routes.HandleNoRoute)

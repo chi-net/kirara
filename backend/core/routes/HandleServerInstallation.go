@@ -18,8 +18,8 @@ HandleServerInstallation
 		PasswordRepeat: Repeated Password
 		ListenPort: Your Application's Listen Port
 		DatabaseType: The type of your Database(SQLite Only now)
-		AuthenticationToken: You should authenticate yourself as this application's genuine owner by entering this token.
-		Type: Precheck(only check token) or Install(install this application)
+		AuthenticationToken: You should authenticate yourself as this application's genuine owner by entering this tokens.
+		Type: Precheck(only check tokens) or Install(install this application)
 	Output:
 		Code: [HTTP Status Code]
 		Status: [Successful or not]
@@ -50,7 +50,7 @@ func HandleServerInstallation(c *gin.Context, token string) {
 	if token != form.AuthenticationToken {
 		c.JSON(400, gin.H{
 			"code":   400,
-			"status": "invalid token",
+			"status": "invalid tokens",
 		})
 		return
 	}
@@ -79,4 +79,5 @@ func HandleServerInstallation(c *gin.Context, token string) {
 		"code":   200,
 		"status": "success",
 	})
+
 }

@@ -1,4 +1,4 @@
-package token
+package tokens
 
 import (
 	"github.com/chi-net/kirara/core/db/sqlite"
@@ -6,9 +6,7 @@ import (
 )
 
 func Query(token string) int {
-	db := sqlite.GetDatabaseInstance()
-
-	result, err := db.Query("SELECT value FROM caches WHERE key = ?", "appsessiontoken:"+token)
+	result, err := sqlite.Query("SELECT value FROM caches WHERE key = ?", "appsessiontoken:"+token)
 
 	if err != nil {
 		return -1

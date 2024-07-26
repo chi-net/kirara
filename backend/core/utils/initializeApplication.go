@@ -24,7 +24,7 @@ func InitializeApplication(username string, password string, listenPort int, dbt
 			return err
 		}
 
-		_, err = sqlite.Exec("CREATE TABLE `users` (`uid`INTEGER,`id`INTEGER,`isbot`INTEGER,`name`TEXT,`username`TEXT,PRIMARY KEY(`uid` AUTOINCREMENT))")
+		_, err = sqlite.Exec("CREATE TABLE `users` (`uid`INTEGER,`id`INTEGER,`isbot`INTEGER,`name`TEXT,`username`TEXT,`bio`TEXT,`avatar`TEXT,PRIMARY KEY(`uid` AUTOINCREMENT))")
 		if err != nil {
 			return err
 		}
@@ -70,15 +70,15 @@ func InitializeApplication(username string, password string, listenPort int, dbt
 			return errors.New("password insert failed")
 		}
 
-		// insert telegram bot token
-		addBotTokenSQL := "INSERT INTO settings (key, value) VALUES ('kirara.bot.token', ?)"
+		// insert telegram bot tokens
+		addBotTokenSQL := "INSERT INTO settings (key, value) VALUES ('kirara.bot.tokens', ?)"
 		result, err = sqlite.Exec(addBotTokenSQL, bottoken)
 		if err != nil {
 			return err
 		}
 		affected, _ = result.RowsAffected()
 		if affected == 0 {
-			return errors.New("bot token insert failed")
+			return errors.New("bot tokens insert failed")
 		}
 	}
 	return nil

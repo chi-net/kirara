@@ -14,7 +14,7 @@ var db *sql.DB
 
 func New(databasePath string) error {
 	var err error
-	db, err = sql.Open("sqlite3", databasePath)
+	db, err = sql.Open("sqlite3", databasePath+"?_busy_timeout=5000")
 	if err != nil {
 		return err
 	}

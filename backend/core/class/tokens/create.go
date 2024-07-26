@@ -1,4 +1,4 @@
-package token
+package tokens
 
 import (
 	"github.com/chi-net/kirara/core/db/sqlite"
@@ -7,11 +7,13 @@ import (
 )
 
 func Create(uid int) string {
-	db := sqlite.GetDatabaseInstance()
-
 	token := utils.GenerateRandomString(32)
 
-	resp, err := db.Exec("INSERT INTO `caches`(`cid`,`key`,`value`) VALUES (NULL, ?, ?);", "appsessiontoken:"+token, strconv.Itoa(uid))
+	// avoid conflict
+	for Query(token) != -1 {
+		token = utils.GenerateRandomString(32)
+	}
+	resp, err := sqlite.Exec("INSERT INTO `caches`(`cid`,`key`,`value`) VALUES (NULL, ?, ?);", "appsessiontoken:"+token, strconv.Itoa(uid))
 
 	if err != nil {
 		return ""
